@@ -52,15 +52,29 @@ module ActionController
       def is_device?(type)
         @@is_device
       end
+
+      def mobile_format(*value)
+        @@mobile_format = value.shift.to_s.to_sym unless value.blank?
+        @@mobile_format ||= :mobile
+      end
+
+      def mobile_format=(value)
+        mobile_format(value)
+      end
     end
     
     module InstanceMethods
-      
-      # Forces the request format to be :mobile
+
+      # Forces the request format to be mobile_format
       
       def force_mobile_format
-        request.format = :mobile
+        request.format = mobile_format
         session[:mobile_view] = true if session[:mobile_view].nil?
+      end
+
+      # Returns the configured mobile_format - :mobile by default
+      def mobile_format
+        self.class.mobile_format
       end
       
       # Determines the request format based on whether the device is mobile or if
@@ -68,7 +82,7 @@ module ActionController
       
       def set_mobile_format
         if is_mobile_device? && !request.xhr?
-          request.format = session[:mobile_view] == false ? :html : :mobile
+          request.format = session[:mobile_view] == false ? :html : mobile_format
           session[:mobile_view] = true if session[:mobile_view].nil?
         end
       end
