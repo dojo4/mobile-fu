@@ -27,7 +27,12 @@ module ActionController
       #      has_mobile_fu(true)
       #    end
         
-      def has_mobile_fu(test_mode = false)
+      #def has_mobile_fu(test_mode = false)
+      def has_mobile_fu(*args)
+        options = args.extract_options!.to_options!
+        test_mode = args.shift || options[:test]
+        format = options[:format] || :mobile
+
         include ActionController::MobileFu::InstanceMethods
 
         if test_mode 
@@ -35,6 +40,8 @@ module ActionController
         else
           before_filter :set_mobile_format
         end
+
+        mobile_format(format)
 
         helper_method :is_mobile_device?
         helper_method :in_mobile_view?
